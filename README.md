@@ -1,7 +1,6 @@
 nTunes
 ======
-A REST (HTTP) API for interacting with iTunes
----------------------------------------------
+## A REST (HTTP) API for interacting with iTunes
 
 __nTunes__ (nodeTunes?) is an HTTP-based API for interacting with a live
 [iTunes][] instance (currently only for Mac OSX), written with [NodeJS][].
@@ -56,7 +55,7 @@ it's requested, otherwise falling-through to __nTunes__' layers:
 
     var nTunes = require("nTunes");
 
-    nTunes.createServer(function(req, req, next) {
+    nTunes.createServer(function(req, res, next) {
       if (req.url == "/index.html") {
         // Serve your index file...
       } else {
