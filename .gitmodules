@@ -1,0 +1,3 @@
+[submodule "vendor/node-applescript"]
+	path = vendor/node-applescript
+	url = git://github.com/TooTallNate/node-applescript.git
