@@ -1,9 +1,9 @@
 nTunes
 ======
-## A REST (HTTP) API for interacting with iTunes
+### A REST (HTTP) API for interacting with iTunes
 
-__nTunes__ (nodeTunes?) is an HTTP-based API for interacting with a live
-[iTunes][] instance (currently only for Mac OSX), written with [NodeJS][].
+__nTunes__ (nodeTunes?) is an HTTP-based API for interacting with your
+[iTunes][] installation (currently only for Mac OSX), written with [NodeJS][].
 
 In other words, it's the foundation for writing web applications based on
 your [iTunes][] library. You could potentially write a website that remotely
