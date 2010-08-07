@@ -1,0 +1,23 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>"nTunes": '/sound volume' Property Test</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/prototype/1.6.1.0/prototype.js"></script>
+    <script type="text/javascript">
+      function click() {
+        alert("clicked!");
+        new Ajax.Request('/sound volume', {
+          method: "GET",
+          onSuccess: function(response) {
+            alert(response.responseText);
+          }
+        });
+
+      }
+    </script>
+  </head>
+  <body>
+    <button onclick="click();">Get Volume</button>
+  </body>
+</html>
