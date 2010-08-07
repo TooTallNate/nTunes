@@ -4,20 +4,54 @@
     <title>"nTunes": '/sound volume' Property Test</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/prototype/1.6.1.0/prototype.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/scriptaculous/1.8.3/slider.js"></script>
     <script type="text/javascript">
-      function click() {
-        alert("clicked!");
+      document.observe("dom:loaded", function() {
+        
+        // First invoke a GET request to the "sound volume" property.
         new Ajax.Request('/sound volume', {
           method: "GET",
-          onSuccess: function(response) {
-            alert(response.responseText);
+          onComplete: function(response) {
+            // Value comes back as a JSON Number.
+            var currentVolume = response.responseText.evalJSON();
+            $("volume").update(currentVolume);
+            
+            // Now we'll create the slider and set it to iTunes' current volume.
+            new Control.Slider('handle', 'track', {
+              sliderValue: currentVolume / 100,
+              onChange: function(v) {
+                // Every time the slider changes, issue a POST request to the
+                // "sound volume" property, with a 'value' form param containing
+                // the value to set.
+                new Ajax.Request('/sound volume', {
+                  method: "POST",
+                  parameters: {
+                    value: v * 100
+                  },
+                  onComplete: function(response) {
+                    
+                    new Ajax.Request('/sound volume', {
+                      method: "GET",
+                      onComplete: function(response) {
+                        // Value comes back as a JSON Number.
+                        var currentVolume = response.responseText.evalJSON();
+                        $("volume").update(currentVolume);
+                      }
+                    });
+                    
+                  }
+                });
+              }
+            });	
           }
         });
-
-      }
+      });
     </script>
   </head>
   <body>
-    <button onclick="click();">Get Volume</button>
+		<div id="track" style="width:200px; background-color:#ccc; height:10px;"> 
+			<div id="handle" style="width:10px; height:12px; background-color:#f00; cursor:move;"></div> 
+		</div>
+		Current iTunes Volume: <span id="volume" style="font-weight:bold;">???</span>
   </body>
 </html>
