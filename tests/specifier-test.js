@@ -36,14 +36,16 @@ parser.on('end', function(result) {
     "/source/1/playlist/name",
     "/source/1/playlist/2/name",
     "/source/1/playlist/1/track/1",
+    "/source/1/playlist/1/track/artist",
     "/source/1/playlist/1/track/artist=Jimi Hendrix&genre=Rock",
     "/source/1/playlist/1/track/artist=Jimi Hendrix&genre=Rock/1",
     "/source/1/playlist/1/track/artist=Jimi Hendrix&genre=Rock/1/name,artist,album,genre,duration",
-    "/selection"
+    "/selection",
+    "/selection/album,name,artist,location"
   );
   
 });
-fs.readFile(__dirname + '/../lib/iTunes.sdef', function(err, data) { parser.parseString(data); });
+fs.readFile(join(__dirname, '../lib/iTunes.sdef'), function(err, data) { parser.parseString(data); });
 
 // Accepts an array of "specifiers" to test. First tries to parse the String
 // into an nSpecifier instance, then executes the nSpecifier's AppleScript
@@ -59,9 +61,7 @@ function test() {
   console.error('    ' + specifier.blue);
   try {
     specifier = new nSpecifier(specifier);
-    var command = specifier.vars + 'get ' + specifier.properties +
-      (specifier.properties &&  specifier.finalVar? ' of ' : '') +
-      (specifier.finalVar ? specifier.finalVar : '');
+    var command = specifier.vars + 'get ' + specifier.finalVar;
     
     console.error('Output:'.cyan.bold);
     command.split('\n').forEach(function(line) {
