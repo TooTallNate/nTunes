@@ -16,32 +16,27 @@
             var currentVolume = response.responseText.evalJSON();
             $("volume").update(currentVolume);
             
+            function onChangeSlide(v) {
+              // Every time the slider changes, issue a POST request to the
+              // "sound volume" property, with a 'value' form param containing
+              // the value to set.
+              new Ajax.Request('/sound volume', {
+                method: "POST",
+                parameters: {
+                  value: v * 100
+                },
+                onComplete: function(response) {
+                  var currentVolume = response.responseText.evalJSON();
+                  $("volume").update(currentVolume);
+                }
+              });
+            }
+            
             // Now we'll create the slider and set it to iTunes' current volume.
             new Control.Slider('handle', 'track', {
               sliderValue: currentVolume / 100,
-              onChange: function(v) {
-                // Every time the slider changes, issue a POST request to the
-                // "sound volume" property, with a 'value' form param containing
-                // the value to set.
-                new Ajax.Request('/sound volume', {
-                  method: "POST",
-                  parameters: {
-                    value: v * 100
-                  },
-                  onComplete: function(response) {
-                    
-                    new Ajax.Request('/sound volume', {
-                      method: "GET",
-                      onComplete: function(response) {
-                        // Value comes back as a JSON Number.
-                        var currentVolume = response.responseText.evalJSON();
-                        $("volume").update(currentVolume);
-                      }
-                    });
-                    
-                  }
-                });
-              }
+              onSlide: onChangeSlide,
+              onChange: onChangeSlide
             });	
           }
         });
