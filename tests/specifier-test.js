@@ -1,14 +1,21 @@
+var join = require("path").join;
+require.paths.unshift(join(__dirname, "../lib"));
+require.paths.unshift(join(__dirname, "../vendor/node-applescript/lib"));
 var fs = require('fs');
+var sys = require('sys');
+var colors = require('colors');
 var xml2js = require('xml2js');
-var nClass = require("./lib/nTunes-class");
-var nSpecifier = require("./lib/nTunes-specifier");
+var nClass = require("nTunes-class");
+var applescript = require("applescript");
+var nSpecifier = require("nTunes-specifier");
+require.paths.shift();
+require.paths.shift();
 
 var parser = new xml2js.Parser();
 parser.on('end', function(result) {
   var iTunesSuite = result.suite[1];
 
-  // Prepare the environment by loading and
-  // parsing the iTunes.sdef file.
+  // Prepare the environment by loading and parsing the iTunes.sdef file.
   //nCommand.processCommands(iTunesSuite.command);
   nClass.processClasses(iTunesSuite['class']);
   nSpecifier.setNClass(nClass);
@@ -16,39 +23,89 @@ parser.on('end', function(result) {
 
 
   // do some tests
-  test("/name,version,mute");
-  test("/current track");
-  test("/current track/name,artist,album,id");
-  test("/current track/artwork/1/id,format,kind,description,downloaded");
-  test("/source");
-  test("/source/name,kind");
-  test("/source/1");
-  test("/source/-40");
-  test("/source/1/name,kind,id");
-  test("/source/1/playlist/name");
-  test("/source/1/playlist/2/name");
-  test("/source/1/playlist/1/track/1");
-  test("/source/1/playlist/1/track/artist=Jimi Hendrix&genre=Pop");
-  test("/source/1/playlist/1/track/artist=Jimi Hendrix&genre=Pop/1");
-  test("/source/1/playlist/1/track/artist=Jimi Hendrix&genre=Pop/1/name,artist,album,genre,duration");
-
+  test(
+    "/name,version,mute",
+    "/current track",
+    "/current track/name,artist,album,id",
+    "/current track/artwork/1/id,format,kind,description,downloaded",
+    "/source",
+    "/source/1",
+    "/source/-40",
+    "/source/name,kind",
+    "/source/1/name,kind,id",
+    "/source/1/playlist/name",
+    "/source/1/playlist/2/name",
+    "/source/1/playlist/1/track/1",
+    "/source/1/playlist/1/track/artist=Jimi Hendrix&genre=Rock",
+    "/source/1/playlist/1/track/artist=Jimi Hendrix&genre=Rock/1",
+    "/source/1/playlist/1/track/artist=Jimi Hendrix&genre=Rock/1/name,artist,album,genre,duration",
+    "/selection"
+  );
+  
 });
-fs.readFile(__dirname + '/lib/iTunes.sdef', function(err, data) { parser.parseString(data); });
+fs.readFile(__dirname + '/../lib/iTunes.sdef', function(err, data) { parser.parseString(data); });
 
-function test(specifier) {
-  console.error('Input:\n    "' + specifier + '"');
+// Accepts an array of "specifiers" to test. First tries to parse the String
+// into an nSpecifier instance, then executes the nSpecifier's AppleScript
+// code and print out the result. As long as 'osascript' returns a 0 exit
+// code, then the specifier passes overall.
+var numPass = 0;
+var numFail = 0;
+function test() {
+  var tests = Array.prototype.slice.call(arguments);
+  var specifier = tests.shift();
+  
+  console.error('Input:'.blue.bold.italic.underline);
+  console.error('    ' + specifier.blue);
   try {
     specifier = new nSpecifier(specifier);
     var command = specifier.vars + 'get ' + specifier.properties +
       (specifier.properties &&  specifier.finalVar? ' of ' : '') +
       (specifier.finalVar ? specifier.finalVar : '');
-    console.error('Output:');
+    
+    console.error('Output:'.cyan.bold);
     command.split('\n').forEach(function(line) {
-      console.error('    ' + line);
+      console.error('    ' + line.cyan);
+    });
+    
+    applescript.execString('tell application "iTunes"\n' + command + '\nend tell', function(exitCode, out, err) {
+      if (exitCode) {
+        console.error('Result:'.red.bold);
+        console.error(('    Exit Code: ' + exitCode).red.italic);
+        err.split('\n').forEach(function(line) {
+          if (line.length>0)
+            console.error('    ' + line.red);
+        });        
+        console.error('Fail...'.red.bold.italic.underline);
+        numFail++;
+      } else {
+        console.error('Result:'.green.bold);
+        sys.inspect(out).split('\n').forEach(function(line) {
+          if (line.length>0)
+          console.error('    ' + line.green);
+        });
+        console.error('PASS!'.green.bold.italic.underline);
+        numPass++;
+      }
+      console.error('\n');
+      if (tests.length > 0) {
+        test.apply(null, tests);
+      } else {
+        done();
+      }
     });
   } catch(e) {
-    console.error('Error:');
-    console.error(e);
+    console.error('Error:'.red.bold);
+    sys.inspect(e).split('\n').forEach(function(obj) {
+      console.error('    ' + obj);
+    });
+    console.error('Fail...'.red.bold.italic.underline);
+    numFail++;
   }
-  console.error('\n');
+}
+
+function done() {
+  console.error("Completed ".magenta + String(numPass+numFail).magenta.bold.underline + " specifier tests:".magenta);
+  console.error("    " + String(numPass).green.bold + " passed!".green);
+  console.error("    " + String(numFail).red.bold + " failed...".red);
 }
