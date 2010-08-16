@@ -31,14 +31,14 @@ This starts __nTunes__ as a stand-alone HTTP server in development mode. While
 the server is running you can interact with your [iTunes][] library through
 simple HTTP requests sent to your computer. Here are some examples:
 
-  To get the name of the currently play track with a GET request:
+  To get the `name` of the `current track` with a GET request:
   
-    curl localhost:3000/currentTrack/name
+    curl localhost:3000/current%20track/name
       // Returns "Lateralus"
 
   To set your iTunes' volume to 50% with through a POST request:
   
-    curl -d "value=50" localhost:3000/volume
+    curl -d value=50 localhost:3000/sound%20volume
       // Returns 50
 
 The API mostly returns JSON encoded values, and is mostly intended to be used
