@@ -15,12 +15,17 @@
             // Value comes back as a JSON Number.
             var currentVolume = response.responseText.evalJSON();
             $("volume").update(currentVolume);
+            var req;
             
             function onChangeSlide(v) {
               // Every time the slider changes, issue a POST request to the
               // "sound volume" property, with a 'value' form param containing
               // the value to set.
-              new Ajax.Request('/sound volume', {
+              if (req && req.transport.abort) {
+                // Ensure that only 1 XMLHttpRequest is active at a time.
+                req.transport.abort();
+              }
+              req = new Ajax.Request('/sound volume', {
                 method: "POST",
                 parameters: {
                   value: v * 100
