@@ -1,6 +1,61 @@
 #!/usr/bin/env node
 
+// Set the process title
 process.title = "nTunes";
 
-nTunes = require("nTunes");
+// 'npm' dependencies.
+var colors = require("colors");
+var connect = require("connect");
 
+// Handle 'stdin' for certain commands.
+var stdin = process.openStdin();
+stdin.setEncoding("utf8");
+stdin.on('data', function (command) {
+  command = command.trim();
+  switch(command) {
+    case "help":
+      console.log("  Supported runtime commands:".blue.bold);
+      console.log("    help".green.bold + " - Shows this help printout.".green);
+      console.log("    exit".green.bold + " - (Ctrl+D) Closes the nTunes server process.".green);
+      console.log("    restart".green.bold + " - (Ctrl+C) Restarts the nTunes server (useful for development).".green);
+      break;
+    case "restart":
+    case "reboot":
+      restartServer();
+      break;
+    case "exit":
+    case "quit":
+    case "close":
+      process.exit();
+      break;
+    default:
+      console.log("Unknown command: ".red + command.red.bold);
+  }
+});
+// Quit the process on Ctrl+D.
+stdin.on("end", function() {
+  process.exit();
+});
+// Quickly and easily restart the 'nTunes' server with Ctrl+C.
+process.on("SIGINT", function() {
+  restartServer();
+  console.log("If you meant to kill 'nTunes', use Ctrl+D instead...".cyan.bold.inverse);
+});
+
+
+// Create the nTunes server instance.
+var nTunes = require("nTunes").createServer(
+  connect.logger(),
+  connect.staticProvider(__dirname + "/../www")
+);
+
+// TODO: Make port configurable
+var port = 8888;
+nTunes.listen(port, function() {
+  console.log('"nTunes"'.magenta.bold + ' HTTP Server started on port: '.blue + String(port).red.bold);
+  console.log("    Type ".green + "help".green.bold + " for a list of runtime commands...".green);
+});
+
+function restartServer() {
+  console.log("NOT SUPPORTED YET!".red.bold);
+}
