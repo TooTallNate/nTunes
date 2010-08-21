@@ -9,6 +9,13 @@ In other words, it's the foundation for writing web applications based on
 your [iTunes][] library. You could potentially write a website that remotely
 controls the volume of the [iTunes][] on your computer.
 
+Installation
+------------
+
+If you're lazy, just use the awesome[__npm__](http://github.com/isaacs/npm) of course!
+
+    npm install nTunes
+
 Usage
 -----
 
@@ -19,13 +26,11 @@ capability to add layers (to serve your implementing website perhaps?).
 
 ### Stand-alone mode...
 
-To play around, you can run it stand-alone. Make sure you have
-[`connect`](http://github.com/senchalabs/connect) and
-[`spark`](http://github.com/senchalabs/spark) from
-[__npm__](http://github.com/isaacs/npm), and are running [NodeJS][] on OS X,
-then from the __nTunes__ root directory (where this README is) invoke:
+If you're only interested in __nTunes__ as-is, then it comes with a convenient
+executable file to easily start the HTTP server for you to play with. Once
+you've installed via __npm__, simply invoke:
 
-    spark
+    nTunes
 
 This starts __nTunes__ as a stand-alone HTTP server in development mode. While
 the server is running you can interact with your [iTunes][] library through
@@ -33,12 +38,12 @@ simple HTTP requests sent to your computer. Here are some examples:
 
   To get the `name` of the `current track` with a GET request:
   
-    curl localhost:3000/current%20track/name
+    curl localhost:8888/current%20track/name
       // Returns "Lateralus"
 
   To set your iTunes' volume to 50% with through a POST request:
   
-    curl -d value=50 localhost:3000/sound%20volume
+    curl -d value=50 localhost:8888/sound%20volume
       // Returns 50
 
 The API mostly returns JSON encoded values, and is mostly intended to be used

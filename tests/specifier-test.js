@@ -1,6 +1,5 @@
 var join = require("path").join;
 require.paths.unshift(join(__dirname, "../lib"));
-require.paths.unshift(join(__dirname, "../vendor/node-applescript/lib"));
 var fs = require('fs');
 var sys = require('sys');
 var colors = require('colors');
@@ -8,7 +7,6 @@ var xml2js = require('xml2js');
 var nClass = require("nTunes-class");
 var applescript = require("applescript");
 var nSpecifier = require("nTunes-specifier");
-require.paths.shift();
 require.paths.shift();
 
 var parser = new xml2js.Parser();
