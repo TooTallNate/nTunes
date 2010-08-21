@@ -1,6 +1,0 @@
-[submodule "vendor/node-applescript"]
-	path = vendor/node-applescript
-	url = git://github.com/TooTallNate/node-applescript.git
-[submodule "vendor/colors"]
-	path = vendor/colors
-	url = git://github.com/Marak/colors.js.git

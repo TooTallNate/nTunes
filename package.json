@@ -11,5 +11,6 @@
   },
   "keywords": ["iTunes", "music", "http", "rest"],
   "bin": { "nTunes": "./bin/nTunes" },
+  "main": "./lib/nTunes",
   "engines": { "node": ">= 0.2.0" }
 }
