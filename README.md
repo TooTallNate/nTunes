@@ -12,7 +12,7 @@ controls the volume of the [iTunes][] on your computer.
 Installation
 ------------
 
-If you're lazy, just use the awesome[__npm__](http://github.com/isaacs/npm) of course!
+If you're lazy, just use the awesome [__npm__](http://github.com/isaacs/npm) of course!
 
     npm install nTunes
 
