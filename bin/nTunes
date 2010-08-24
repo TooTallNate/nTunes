@@ -3,9 +3,16 @@
 // Set the process title
 process.title = "nTunes";
 
+// Standard Node modules.
+var fs = require("fs");
+
 // 'npm' dependencies.
+var asciimo = require("asciimo").Figlet;
 var colors = require("colors");
 var connect = require("connect");
+
+// Load up the "package.json" for version info.
+var packageJson = JSON.parse(fs.readFileSync(__dirname + "/../package.json"));
 
 // Handle 'stdin' for certain commands.
 var stdin = process.openStdin();
@@ -51,10 +58,16 @@ var nTunes = require("nTunes").createServer(
 
 // TODO: Make port configurable
 var port = 8888;
-nTunes.listen(port, function() {
-  console.log('"nTunes"'.magenta.bold + ' HTTP Server started on port: '.blue + String(port).red.bold);
-  console.log("    Type ".green + "help".green.bold + " for a list of runtime commands...".green);
-});
+nTunes.listen(port, printTitle);
+
+function printTitle() {
+  asciimo.write(packageJson.name, 'larry3d', function(art){
+    console.log(art.trimRight().blue.bold);
+    console.log("  v".blue.bold + packageJson.version.blue);
+    console.log("          HTTP Server started on port: ".magenta + (""+port).red.bold);
+    console.log("     Type ".green + "'help'".green.bold + " for a list of runtime commands...".green);
+  });  
+}
 
 function restartServer() {
   console.log("NOT SUPPORTED YET!".red.bold);

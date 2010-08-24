@@ -5,6 +5,7 @@
   "author": "Nathan Rajlich <nathan@tootallnate.net>",
   "dependencies": {
     "applescript": ">= 0.1.0",
+    "asciimo": ">= 0.2.5",
     "colors": ">= 0.3.0",
     "connect": ">= 0.2.4",
     "xml2js": ">= 0.1.5"
