@@ -1,0 +1,17 @@
+body {
+  margin:0 0 0 0;
+  text-align: center;
+}
+
+audio {
+  display: block;
+  margin: 0 auto;
+  width: 350px;
+}
+
+code {
+  border: 1px Solid black;
+  padding: 4px;
+  font-weight: bold;
+  background-color: lightgrey;
+}
