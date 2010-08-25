@@ -62,18 +62,21 @@ var nTunes = require("nTunes").createServer(
 
 // TODO: Make port configurable
 var port = 8888;
-nTunes.listen(port, printTitle);
+nTunes.listen(port, function() {
+  asciimo.write(packageJson.name, 'larry3d', function(art) {
+    printTitle = function() {
+      console.log(art.trimRight().blue.bold);
+      console.log(("  v" + packageJson.version).blue);
+      console.log("          HTTP Server started on port: ".magenta + (""+port).red.bold);
+      console.log("     Type ".green + "'help'".green.bold + " for a list of runtime commands...".green);      
+    }
+    printTitle();
+  });  
+});
 
 
 // Prints the 'asciimo' title, the version, and the running port number.
-function printTitle() {
-  asciimo.write(packageJson.name, 'larry3d', function(art){
-    console.log(art.trimRight().blue.bold);
-    console.log(("  v" + packageJson.version).blue);
-    console.log("          HTTP Server started on port: ".magenta + (""+port).red.bold);
-    console.log("     Type ".green + "'help'".green.bold + " for a list of runtime commands...".green);
-  });  
-}
+var printTitle; // Gets set in the HTTP server 'listen' callback.
 
 // TODO: Restart the server, but reloading the 'nTunes' module fresh.
 function restartServer() {
