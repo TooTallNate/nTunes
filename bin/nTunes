@@ -11,16 +11,21 @@ var asciimo = require("asciimo").Figlet;
 var colors = require("colors");
 var connect = require("connect");
 
+
 // Load up the "package.json" for version info.
 var packageJson = JSON.parse(fs.readFileSync(__dirname + "/../package.json"));
+
 
 // Handle 'stdin' for certain commands.
 var stdin = process.openStdin();
 stdin.setEncoding("utf8");
 stdin.on('data', function (command) {
   command = command.trim();
+  if (command.length === 0) return;
   switch(command) {
     case "help":
+    case "printHelp":
+    case "print-help":
       console.log("  Supported runtime commands:".blue.bold);
       console.log("    help".green.bold + " - Shows this help printout.".green);
       console.log("    exit".green.bold + " - (Ctrl+D) Closes the nTunes server process.".green);
@@ -37,6 +42,8 @@ stdin.on('data', function (command) {
       process.exit();
       break;
     case "title":
+    case "printTitle":
+    case "print-title":
       printTitle();
       break;
     default:
@@ -54,9 +61,17 @@ process.on("SIGINT", function() {
 });
 
 
+// Listen for the "uncaughtException" event, otherwise the server goes down! Oh noes!
+// TODO: Do something else here?
+process.on('uncaughtException', function (err) {
+  console.error('Caught exception: ' + err);
+});
+
+
 // Create the nTunes server instance.
 var nTunes = require("nTunes").createServer(
   connect.logger(),
+  connect.favicon(),
   connect.staticProvider(__dirname + "/../www")
 );
 
@@ -66,11 +81,11 @@ nTunes.listen(port, function() {
   asciimo.write(packageJson.name, 'larry3d', function(art) {
     printTitle = function() {
       console.log(art.trimRight().blue.bold);
-      console.log(("  v" + packageJson.version).blue);
-      console.log("          HTTP Server started on port: ".magenta + (""+port).red.bold);
-      console.log("     Type ".green + "'help'".green.bold + " for a list of runtime commands...".green);      
     }
     printTitle();
+    console.log(("  v" + packageJson.version).blue);
+    console.log("          HTTP Server started on port: ".magenta + (""+port).red.bold);
+    console.log("     Type ".green + "'help'".green.bold + " for a list of runtime commands...".green);      
   });  
 });
 
