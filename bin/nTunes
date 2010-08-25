@@ -25,6 +25,7 @@ stdin.on('data', function (command) {
       console.log("    help".green.bold + " - Shows this help printout.".green);
       console.log("    exit".green.bold + " - (Ctrl+D) Closes the nTunes server process.".green);
       console.log("    restart".green.bold + " - (Ctrl+C) Restarts the nTunes server (useful for development).".green);
+      console.log("    title".green.bold + " - Prints the awesome 'nTunes' 3D title.".green);
       break;
     case "restart":
     case "reboot":
@@ -34,6 +35,9 @@ stdin.on('data', function (command) {
     case "quit":
     case "close":
       process.exit();
+      break;
+    case "title":
+      printTitle();
       break;
     default:
       console.log("Unknown command: ".red + command.red.bold);
@@ -60,15 +64,18 @@ var nTunes = require("nTunes").createServer(
 var port = 8888;
 nTunes.listen(port, printTitle);
 
+
+// Prints the 'asciimo' title, the version, and the running port number.
 function printTitle() {
   asciimo.write(packageJson.name, 'larry3d', function(art){
     console.log(art.trimRight().blue.bold);
-    console.log("  v".blue.bold + packageJson.version.blue);
+    console.log(("  v" + packageJson.version).blue);
     console.log("          HTTP Server started on port: ".magenta + (""+port).red.bold);
     console.log("     Type ".green + "'help'".green.bold + " for a list of runtime commands...".green);
   });  
 }
 
+// TODO: Restart the server, but reloading the 'nTunes' module fresh.
 function restartServer() {
   console.log("NOT SUPPORTED YET!".red.bold);
 }
