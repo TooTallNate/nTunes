@@ -15,3 +15,9 @@ code {
   font-weight: bold;
   background-color: lightgrey;
 }
+
+
+.box {
+  width: 250px;
+  height: 150px;
+}
