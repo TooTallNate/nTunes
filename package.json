@@ -1,7 +1,7 @@
 {
   "name": "nTunes",
   "description": "An extendable REST API for interacting with iTunes",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "author": "Nathan Rajlich <nathan@tootallnate.net>",
   "dependencies": {
     "applescript": ">= 0.1.0",
