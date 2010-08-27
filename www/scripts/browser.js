@@ -8,94 +8,54 @@ document.observe("dom:loaded", function() {
   
   genresBox.observe("change", function(e) {
     e.stop();
+    var filter = {};
     var g = genresBox.value;
-    getArtistsByGenre(g == "All Genres" ? null : g);
-    getAlbumsByGenreAndArtist(g == "All Genres" ? null : g, null);
+    if (g && g != "All Genres") {
+      filter.genre = g;
+    }
+    get(['artist','album'], filter.genre ? filter : null);
   });
 
   artistsBox.observe("change", function(e) {
     e.stop();
     var g = genresBox.value;
     var a = artistsBox.value;
-    getAlbumsByGenreAndArtist(g == "All Genres" ? null : g, a == "All Artists" ? null : a);
+    var filter = {};
+    if (g && g != "All Genres") {
+      filter.genre = g;
+    }
+    if (a && a != "All Artists") {
+      filter.artist = a;
+    }
+    get(['album'], filter);
   });
 
   albumsBox.observe("change", function(e) {
     e.stop();
-    var g = genresBox.value;
-    //getArtistsByGenre(g == "All Genres" ? null : g);
   });
 
-  // Inititate the first XHR requests:
-  getGenres();
-  getArtistsByGenre();
-  getAlbumsByGenreAndArtist();
+  // Inititate the first XHR request:
+  get(['genre','artist','album']);
 });
 
-var currentGenreRequest;
-function getGenres() {
-  if (currentGenreRequest) {
-    currentGenreRequest.transport.abort();
+var currentRequest;
+function get(props, filters) {
+  if (currentRequest) {
+    currentRequest.transport.abort();
   }
-  currentGenreRequest = new Ajax.Request(sourcePlaylist + "/track/genre", {
+  var selection = Object.keys(filters).length > 0 ? Object.toQueryString(filters) + "/" : "";
+  currentRequest = new Ajax.Request(sourcePlaylist + "/track/" + selection + props.join(","), {
     method: "GET",
     parameters: { unique: true },
     onSuccess: function(r) {
-      var html = "<option selected>All Genres</option>";
-      Array.sort(r.responseJSON).without("").each(function(genre) {
-        html += '<option>' + genre + '</option>';
+      props.each(function(prop, i) {
+        var html = "<option selected>All "+prop[0].toUpperCase()+prop.substring(1)+"s</option>";
+        var array = props.length == 1 ? r.responseJSON : r.responseJSON[i];
+        array.sort().without("").each(function(item) {
+          html += '<option>' + item + '</option>';
+        });
+        $(prop + "sBox").update(html);
       });
-      genresBox.update(html);
-    },
-    onFailure: onXHRFailure
-  });
-}
-
-var currentArtistRequest;
-function getArtistsByGenre(genre) {
-  if (currentArtistRequest) {
-    currentArtistRequest.transport.abort();
-  }
-  var selection = "";
-  if (genre) {
-    selection = Object.toQueryString({genre:genre}) + "/";
-  }
-  currentArtistRequest = new Ajax.Request(sourcePlaylist + "/track/" + selection + "artist", {
-    method: "GET",
-    parameters: { unique: true },
-    onSuccess: function(r) {
-      var html = "<option selected>All Artists</option>";
-      Array.sort(r.responseJSON).without("").each(function(artist) {
-        html += '<option>' + artist + '</option>';
-      });
-      artistsBox.update(html);
-    },
-    onFailure: onXHRFailure
-  });
-}
-
-var currentAlbumRequest;
-function getAlbumsByGenreAndArtist(genre, artist) {
-  if (currentAlbumRequest) {
-    currentAlbumRequest.transport.abort();
-  }
-  var query = {};
-  if (genre) {
-    query.genre = genre;
-  }
-  if (artist) {
-    query.artist = artist;
-  }
-  var selection = Object.keys(query).length > 0 ? Object.toQueryString(query) + "/" : "";
-  currentAlbumRequest = new Ajax.Request(sourcePlaylist + "/track/" + selection + "album", {
-    method: "GET",
-    parameters: { unique: true },
-    onSuccess: function(r) {
-      var html = "<option selected>All Albums</option>";
-      Array.sort(r.responseJSON).without("").each(function(album) {
-        html += '<option>' + album + '</option>';
-      });
-      albumsBox.update(html);
     },
     onFailure: onXHRFailure
   });
