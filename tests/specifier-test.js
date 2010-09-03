@@ -52,11 +52,11 @@ function test() {
       console.error('    ' + line.cyan);
     });
     
-    applescript.execString('tell application "iTunes"\n' + command + '\nend tell', function(exitCode, out, err) {
-      if (exitCode) {
+    applescript.execString('tell application "iTunes"\n' + command + '\nend tell', function(err, out) {
+      if (err) {
         console.error('Result:'.red.bold);
-        console.error(('    Exit Code: ' + exitCode).red.italic);
-        err.split('\n').forEach(function(line) {
+        console.error(('    Exit Code: ' + err.exitCode).red.italic);
+        err.message.split('\n').forEach(function(line) {
           if (line.length>0)
             console.error('    ' + line.red);
         });        
@@ -100,7 +100,7 @@ function test() {
 //}
 
 exports.test = function(callback) {
-  return callback(); //Skip
+  //return callback(); //Skip
   
   done = callback;
   // do some tests
