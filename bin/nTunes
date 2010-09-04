@@ -64,7 +64,8 @@ process.on("SIGINT", function() {
 // Listen for the "uncaughtException" event, otherwise the server goes down! Oh noes!
 // TODO: Do something else here?
 process.on('uncaughtException', function (err) {
-  console.error('Caught exception: ' + err);
+  console.error('Caught exception:' + err);
+  console.error(err.stack);
 });
 
 
