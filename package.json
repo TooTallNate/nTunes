@@ -1,10 +1,10 @@
 {
   "name": "nTunes",
   "description": "An extendable REST API for interacting with iTunes",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "author": "Nathan Rajlich <nathan@tootallnate.net>",
   "dependencies": {
-    "applescript": ">= 0.2.0",
+    "applescript": ">= 0.2.1",
     "asciimo": ">= 0.2.5",
     "colors": ">= 0.3.0",
     "connect": ">= 0.2.4",
