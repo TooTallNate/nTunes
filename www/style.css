@@ -17,6 +17,11 @@ code {
 }
 
 
+textarea.logger {
+  width:500px;
+  height:300px;
+}
+
 .box {
   width: 250px;
   height: 150px;

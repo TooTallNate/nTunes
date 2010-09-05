@@ -1,0 +1,89 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>"nTunes": Protected Content with Safari</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link href="../style.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="../scripts/prototype.js"></script>
+    <script type="text/javascript">
+      document.observe("dom:loaded", function() {
+        
+        // Fist order is to ensure that there's either protected audio or
+        // video files.
+        new Ajax.Request("/source/1/playlist/1/track/kind", {
+          method: "GET",
+          parameters: {unique:true},
+          onSuccess: function(r) {
+            var protectedKinds = [];
+            r.responseJSON.each(function(kind) {
+              if (/protected/i.test(kind)) {
+                protectedKinds.push(kind);
+              }
+            });
+            log("Available \"protected\" kinds:");
+            protectedKinds.each(function(kind) {
+              log("    " + kind);
+            });
+            playRandomOfKind(getRandom(protectedKinds));
+          },
+          onError: onError
+        });
+        log("Getting unique 'kind's to ensure there's \"protected\" content...");
+
+        
+        function playRandomOfKind(kind) {
+          log("Getting count of \"" + kind + '"');
+          new Ajax.Request("/source/1/playlist/1/track/" + Object.toQueryString({kind:kind}) + "/count", {
+            method: "GET",
+            onSuccess: function(r) {
+              log("    " + r.responseJSON);
+              var player;
+              if (/video/i.test(kind)) {
+                player = document.createElement("video");
+                document.body.insert(player);
+              } else {
+                player = document.createElement("audio");                
+              }
+              var trackNum = Math.floor(Math.random()*r.responseJSON) + 1;
+              log("Playing track: " + trackNum);
+              player.src = "/source/1/playlist/1/track/" + Object.toQueryString({kind:kind}) + "/" + trackNum + "/raw";
+              player.load();
+              player.play();                
+            },
+            onError: onError
+          });
+        }
+        
+
+        function onError(r) {
+          log("ERROR: " + r.responseText);
+        }
+
+       function log(text) {
+          $$("textarea")[0].innerHTML += text+"\n";
+        }
+        
+        function getRandom(array) {
+          return array[Math.floor(array.length*Math.random())];          
+        }
+        
+      });
+    </script>
+  </head>
+  <body>
+    
+    <p>This example demonstrates Safari's hidden ability to playback "protected"
+      (purchased) content that has been purchased through iTunes. A random
+      "protected" media file should begin to autoplay. This even works on iOS,
+      as long as the device has been synced with the computer running nTunes!</p>
+      
+    <p>Since, behind the scenes, Safari and iTunes both use QuickTime to
+      playback the media file, in theory they should be able to play ANY of
+      the same types. This includes Apple Lossless, MP3s, WAVs, AAC and even
+      content protected through Apple's
+      <a href="http://en.wikipedia.org/wiki/FairPlay">FairPlay</a> encryption.</p>
+    
+    <textarea class="logger"></textarea>
+    
+  </body>
+</html>
