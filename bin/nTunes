@@ -12,6 +12,18 @@ var colors = require("colors");
 var connect = require("connect");
 
 
+// So as you can see, we just use the standard connect stack setup, and the
+// nTunes API is offered as a layer (usually goes at the bottom). Toward the
+// bottom of this file we call 'listen()' on the server instance.
+var nTunesServer = connect.createServer(
+  connect.logger(),
+  connect.favicon(),
+  connect.staticProvider(__dirname + "/../www"),
+  require("nTunes")()
+);
+
+
+
 // Load up the "package.json" for version info.
 var packageJson = JSON.parse(fs.readFileSync(__dirname + "/../package.json"));
 
@@ -61,24 +73,18 @@ process.on("SIGINT", function() {
 });
 
 
-// Listen for the "uncaughtException" event, otherwise the server goes down! Oh noes!
+// Listen for the "uncaughtException" event, otherwise the server goes down!
+// Oh noes!
 // TODO: Do something else here?
 process.on('uncaughtException', function (err) {
-  console.error('Caught exception:' + err);
+  console.error('Uncaught Exception: ' + err);
   console.error(err.stack);
 });
 
 
-// Create the nTunes server instance.
-var nTunes = require("nTunes").createServer(
-  connect.logger(),
-  connect.favicon(),
-  connect.staticProvider(__dirname + "/../www")
-);
-
 // TODO: Make port configurable
 var port = 8888;
-nTunes.listen(port, function() {
+nTunesServer.listen(port, function() {
   asciimo.write(packageJson.name, 'larry3d', function(art) {
     printTitle = function() {
       console.log(art.trimRight().blue.bold);
