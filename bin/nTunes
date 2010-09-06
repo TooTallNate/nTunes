@@ -3,18 +3,11 @@
 // Set the process title
 process.title = "nTunes";
 
-// Standard Node modules.
-var fs = require("fs");
-
 // 'npm' dependencies.
-var asciimo = require("asciimo").Figlet;
-var colors = require("colors");
 var connect = require("connect");
-var nTunes = require("nTunes");
-
 
 // For the 'connect' server, we create a new nTunes layer instance.
-var nTunesLayer = nTunes();
+var nTunesLayer = require("nTunes")();
 
 
 // If you want to add 'custom handlers' to classes, use the CLASSES property
@@ -27,7 +20,7 @@ nTunesLayer.CLASSES['application'].addHandler("hello", function(req, res, next) 
 
 
 // So as you can see, we just use the standard connect stack setup, and the
-// nTunes API is offered as a layer (usually goes at the bottom). Toward the
+// nTunes API is offered as a layer (usually goes at the bottom). Towards the
 // bottom of this file we call 'listen()' on the server instance.
 var nTunesServer = connect.createServer(
   connect.logger(),
@@ -41,8 +34,11 @@ var nTunesServer = connect.createServer(
 
 ////// NOTHING BELOW HERE IS REALLY NECESSARY IN ORDER TO USE NTUNES /////////
 
+var asciimo = require("asciimo").Figlet;
+var colors = require("colors");
+
 // Load up the "package.json" for version info.
-var packageJson = JSON.parse(fs.readFileSync(__dirname + "/../package.json"));
+var packageJson = JSON.parse(require("fs").readFileSync(__dirname + "/../package.json"));
 
 
 // Handle 'stdin' for certain commands.
