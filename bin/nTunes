@@ -10,6 +10,20 @@ var fs = require("fs");
 var asciimo = require("asciimo").Figlet;
 var colors = require("colors");
 var connect = require("connect");
+var nTunes = require("nTunes");
+
+
+// For the 'connect' server, we create a new nTunes layer instance.
+var nTunesLayer = nTunes();
+
+
+// If you want to add 'custom handlers' to classes, use the CLASSES property
+// with the 'addHandler' function.
+nTunesLayer.CLASSES['application'].addHandler("hello", function(req, res, next) {
+  var body = "Hello nTunes!\n";
+  res.writeHead(200, {'Content-Length':body.length});
+  res.end(body);
+});
 
 
 // So as you can see, we just use the standard connect stack setup, and the
@@ -19,10 +33,13 @@ var nTunesServer = connect.createServer(
   connect.logger(),
   connect.favicon(),
   connect.staticProvider(__dirname + "/../www"),
-  require("nTunes")()
+  nTunesLayer
 );
 
 
+
+
+////// NOTHING BELOW HERE IS REALLY NECESSARY IN ORDER TO USE NTUNES /////////
 
 // Load up the "package.json" for version info.
 var packageJson = JSON.parse(fs.readFileSync(__dirname + "/../package.json"));
