@@ -39,10 +39,13 @@
               log("    " + r.responseJSON);
               var player;
               if (/video/i.test(kind)) {
-                player = document.createElement("video");
+                player = new Element("video").setStyle({
+                  display: "block",
+                  margin: "0 auto"
+                });
                 document.body.insert(player);
               } else {
-                player = document.createElement("audio");                
+                player = new Element("audio");              
               }
               var trackNum = Math.floor(Math.random()*r.responseJSON) + 1;
               log("Playing track: " + trackNum);
