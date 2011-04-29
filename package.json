@@ -1,7 +1,7 @@
 {
   "name": "nTunes",
   "description": "An extendable REST API for interacting with iTunes over HTTP",
-  "version": "0.0.6",
+  "version": "0.1.0",
   "author": "Nathan Rajlich <nathan@tootallnate.net>",
   "dependencies": {
     "applescript": ">= 0.2.1",
@@ -13,8 +13,19 @@
     "step": ">= 0.0.4",
     "xml2js": ">= 0.1.6"
   },
-  "keywords": ["iTunes", "music", "http", "REST", "API"],
-  "bin": { "nTunes": "./bin/nTunes" },
+  "keywords": [
+    "iTunes",
+    "music",
+    "http",
+    "REST",
+    "API"
+  ],
+  "bin": {
+    "nTunes": "./bin/nTunes"
+  },
   "main": "./nTunes.js",
-  "engines": { "node": ">= 0.2.0" }
+  "engines": {
+    "node": ">= 0.2.0"
+  },
+  "devDependencies": {}
 }
