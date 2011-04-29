@@ -20,7 +20,7 @@ Installation
 
 If you're lazy, just use the awesome [__npm__](http://github.com/isaacs/npm) of course!
 
-    npm install nTunes
+    npm install -g nTunes
 
 Otherwise feel free to check out this repo and inspect as you will.
 
