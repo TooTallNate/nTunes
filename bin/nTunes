@@ -7,7 +7,7 @@ process.title = "nTunes";
 var connect = require("connect");
 
 // For the 'connect' server, we create a new nTunes layer instance.
-var nTunesLayer = require("nTunes")();
+var nTunesLayer = require("../")();
 
 
 // If you want to add 'custom handlers' to classes, use the CLASSES property
@@ -25,7 +25,7 @@ nTunesLayer.CLASSES['application'].addHandler("hello", function(req, res, next) 
 var nTunesServer = connect.createServer(
   connect.logger(),
   connect.favicon(),
-  connect.staticProvider(__dirname + "/../www"),
+  connect.static(__dirname + "/../www"),
   nTunesLayer
 );
 
