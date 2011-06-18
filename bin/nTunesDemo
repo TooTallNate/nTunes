@@ -12,10 +12,12 @@ app.configure(function () {
   app.set('view engine', 'jade');
 
   app.use(express.logger());
+  // Utilizing the 'mount' feature of connect to have the nTunes API at '/api'
   app.use('/api', nTunes());
   app.use(express.static(path.resolve(__dirname + '/../public')));
   app.use(renderJade);
   app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
+
 });
 
 app.listen(8080, function() {
@@ -28,6 +30,9 @@ function renderJade (req, res, next) {
   var path = req.url.substring(1) || 'index';
   fs.stat(app.set('views') + '/' + path + '.' + app.set('view engine'), function (err, stat) {
     if (err) return next(); // Assume we got ENOENT
-    res.render(path, { title: path });
+    res.render(path, {
+        title: path
+      , demoServerFile: __filename
+    });
   });
 }
