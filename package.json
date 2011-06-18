@@ -4,8 +4,9 @@
   "version": "0.1.0",
   "author": "Nathan Rajlich <nathan@tootallnate.net>",
   "dependencies": {
+    "iTunes": "0.x.x",
     "express": "2.3.x",
-    "iTunes": "0.x.x"
+    "jade": "0.12.x"
   },
   "keywords": [
     "iTunes",
