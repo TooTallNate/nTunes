@@ -25,7 +25,7 @@ nTunesLayer.CLASSES['application'].addHandler("hello", function(req, res, next) 
 var nTunesServer = connect.createServer(
   connect.logger(),
   connect.favicon(),
-  connect.static(__dirname + "/../www"),
+  connect.static(require('path').resolve(__dirname + "/../www")),
   nTunesLayer
 );
 
