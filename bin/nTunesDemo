@@ -1,0 +1,33 @@
+#!/usr/bin/env node
+
+var fs      = require('fs')
+  , path    = require('path')
+  , nTunes  = require('../')
+  , express = require('express')
+  , app     = express.createServer()
+
+
+app.configure(function () {
+  app.set('views', __dirname + '/../views');
+  app.set('view engine', 'jade');
+
+  app.use(express.logger());
+  app.use('/api', nTunes());
+  app.use(express.static(path.resolve(__dirname + '/../public')));
+  app.use(renderJade);
+  app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
+});
+
+app.listen(8080, function() {
+  var a = this.address();
+  console.log('nTunes Demo Server:');
+  console.log('  Listening: "' + a.address + ':' + a.port + '"');
+});
+
+function renderJade (req, res, next) {
+  var path = req.url.substring(1) || 'index';
+  fs.stat(app.set('views') + '/' + path + '.' + app.set('view engine'), function (err, stat) {
+    if (err) return next(); // Assume we got ENOENT
+    res.render(path, { title: path });
+  });
+}
