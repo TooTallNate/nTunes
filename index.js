@@ -8,16 +8,21 @@ var url = require('url')
   }
 
 module.exports = function setup (options) {
+  options = options || {};
   var conn = null
     , app  = express.createServer()
 
   // First order of business is connecting to the iTunes instance.
-  // TODO: Read 'host', 'username', and 'password' from the options for remote
-  //       iTunes connection capabilities!
-  iTunes.createConnection(function (err, c) {
+  if (options.host) {
+    iTunes.createConnection(options, onConn);
+  } else {
+    // connect to the local iTunes installation by default
+    iTunes.createConnection(onConn);
+  }
+  function onConn (err, c) {
     if (err) throw err;
     conn = c;
-  });
+  }
 
   // Simple middleware that returns a 500 HTTP error while the connection to
   // the iTunes instance is still being negotiated.
