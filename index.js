@@ -50,20 +50,15 @@ module.exports = function setup (options) {
     // The 'resolve' function is async-recursively called to chew down the
     // 'req.api' Array. It first gets the next part of the API request, and
     // verifies that the api part exists as a function of 'req.currentItem'
-    //   So for example:
-    //      GET  /volume   ->  Application#getVolume()
-    //      POST /volume   ->  Application#setVolume()
     function resolve () {
-      var part = req.api.shift()
-        , method = req.api.length <= 0 ? req.method.toLowerCase() : 'get'
-        , apiFunction = methodMap[method] + capitalize(part)
+      var apiFunction = req.api.shift()
         , good = !!req.currentItem[apiFunction]
-      //console.log(apiFunction, good);
 
       // If the current part of the API request isn't a function on
       // 'req.currentItem', then we can just call next().
       if (!good) return next();
 
+      // TODO: curry in the POST body params when req.api.length === 0
       var args = [onNextPart];
       req.currentItem[apiFunction].apply(req.currentItem, args);
     }
@@ -92,10 +87,4 @@ module.exports = function setup (options) {
   });
 
   return app;
-}
-
-
-// Make the first letter of a String be capitalized.
-function capitalize(str) {
-  return (str[0]||'').toUpperCase() + str.slice(1);
 }
