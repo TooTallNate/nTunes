@@ -1,11 +1,6 @@
 var url = require('url')
   , iTunes  = require('iTunes')
   , express = require('express')
-  , methodMap = {
-      'get' : 'get'
-    , 'post': 'set'
-    , 'put' : 'set'
-  }
 
 module.exports = function setup (options) {
   options = options || {};
