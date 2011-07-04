@@ -34,7 +34,9 @@ module.exports = function setup (options) {
   app.use(function (req, res, next) {
     req.parsedUrl = url.parse(req.url);
 
+    // The 'api' is the broken down request URL
     req.api = req.parsedUrl.pathname.split('/').slice(1);
+    req.apiIndex = 0;
 
     // The 'Application' base class is the "starting point" for the API.
     req.currentItem = conn;
@@ -46,7 +48,7 @@ module.exports = function setup (options) {
     // 'req.api' Array. It first gets the next part of the API request, and
     // verifies that the api part exists as a function of 'req.currentItem'
     function resolve () {
-      var apiFunction = req.api.shift()
+      var apiFunction = req.api[req.apiIndex++]
         , good = !!req.currentItem[apiFunction]
 
       // If the current part of the API request isn't a function on
@@ -65,7 +67,7 @@ module.exports = function setup (options) {
       if (!part) return next();
       // If this is the last part of the API request, then send the response
       // back to the client.
-      if (req.api.length <= 0) {
+      if (req.api.length === req.apiIndex) {
         respond(part);
       } else {
       // Otherwise, set this returned item as the 'currentItem' of the request,
