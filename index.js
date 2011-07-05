@@ -32,6 +32,15 @@ module.exports = function setup (options) {
   // using the 'returnValue' properties of each getter and setter function, and
   // 'instanceof'.
   app.use(function (req, res, next) {
+
+    var nextCalled = false
+
+    function dontCallNextMoreThanOnce(err) {
+      if (nextCalled) return;
+      nextCalled = true;
+      next(err);
+    }
+
     req.parsedUrl = url.parse(req.url);
 
     // The 'api' is the broken down request URL
@@ -79,13 +88,6 @@ module.exports = function setup (options) {
       if (counter === 0) return onNextPart(null, result);
 
       var args = []
-        , nextCalled = false
-
-      function dontCallNextMoreThanOnce(err) {
-        if (nextCalled) return;
-        nextCalled = true;
-        next(err);
-      }
 
       // Iterate through the item's entries, and call the api function on each
       req.currentItem.forEach(function (item, i) {
