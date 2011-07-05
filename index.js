@@ -60,7 +60,9 @@ module.exports = function setup (options) {
         , args = []
 
       // Fast case for when 'item' is undefined...
-      return respond(req.currentItem);
+      if (!item) {
+        return respond(req.currentItem);
+      }
 
       // Also peek at the next part of the API request. If it's a number or
       // a part of a query-string ("artist=Tool&name=Lateralus") then also grab
