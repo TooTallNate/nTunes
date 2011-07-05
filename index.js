@@ -48,15 +48,58 @@ module.exports = function setup (options) {
     // 'req.api' Array. It first gets the next part of the API request, and
     // verifies that the api part exists as a function of 'req.currentItem'
     function resolve () {
-      var apiFunction = req.api[req.apiIndex++]
-        , good = !!req.currentItem[apiFunction]
+      // First check out the type of 'currentItem'. There's a chance that it's
+      // an Array, in which case we should grab the next part of the API
+      // request and attempt to use it as well
+      if (Array.isArray(req.currentItem)) {
+        var item = req.api[req.apiIndex++];
+        if (isNumber(item)) {
+          req.currentItem = req.currentItem[item];
+          processSingleItem();
+        } else {
+          processArray(item);
+        }
+      } else {
+        processSingleItem();
+      }
+    }
 
-      // If the current part of the API request isn't a function on
-      // 'req.currentItem', then we can just call next().
-      if (!good) return next();
+    // When the currentItem is an Array, then the apiFunction should be
+    // called on *all* the entries of the array, and the processing shouldn't
+    // continue until that's done.
+    function processArray (apiFunction) {
+      var counter = req.currentItem.length
+        , result = []
+
+      // Fast case for when the currentItem has 0 entries in the array
+      if (counter === 0) return onNextPart(null, result);
+
+      var args = []
+
+      // Iterate through the item's entries, and call the api function on each
+      req.currentItem.forEach(function (item, i) {
+        // Check first that the API function exists on the item. next() if not.
+        if (!item[apiFunction]) return next();
+
+        item[apiFunction].apply(item, args.concat([function (err, part) {
+          if (err) return next(err);
+          result[i] = part;
+          --counter || onNextPart(null, result);
+        }]));
+      });
+    }
+
+    // When currentItem is a regular iTunesItem reference, then get the next
+    // part of the api request and process normally.
+    function processSingleItem () {
+      var apiFunction = req.api[req.apiIndex++]
+
+      // Check first that the API function exists on the item. next() if not.
+      if (!req.currentItem[apiFunction]) return next();
 
       // TODO: curry in the POST body params when req.api.length === 0
-      var args = [onNextPart];
+      var args = [];
+      args.push(onNextPart);
       req.currentItem[apiFunction].apply(req.currentItem, args);
     }
 
@@ -84,4 +127,10 @@ module.exports = function setup (options) {
   });
 
   return app;
+}
+
+
+// Returns true if a given String is a Number
+function isNumber (n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
 }
