@@ -91,6 +91,7 @@ module.exports = function setup (options) {
 
       // Iterate through the item's entries, and call the api function on each
       req.currentItem.forEach(function (item, i) {
+
         // Check first that the API function exists on the item. next() if not.
         if (!item[apiFunction]) return dontCallNextMoreThanOnce();
 
@@ -106,14 +107,32 @@ module.exports = function setup (options) {
     // part of the api request and process normally.
     function processSingleItem () {
       var apiFunction = req.api[req.apiIndex++]
+        // TODO: curry in the POST body params when req.api.length === 0
+        , args = []
 
+      // If the API request part contains a comma , then it should be split on
+      // that and each item be processed individually
+      if (~apiFunction.indexOf(',')) {
+        var result = []
+          , apiItems = apiFunction.split(',')
+          , counter = apiItems.length
+        apiItems.forEach(function(item, i) {
+          doRequest(req.currentItem, item, args, function (err, part) {
+            if (err) return dontCallNextMoreThanOnce(err);
+            result[i] = part;
+            --counter || onNextPart(null, result);
+          });
+        });
+      } else {
+        doRequest(req.currentItem, apiFunction, args, onNextPart);
+      }
+    }
+
+    function doRequest(item, apiFunction, args, callback) {
       // Check first that the API function exists on the item. next() if not.
-      if (!req.currentItem[apiFunction]) return next();
+      if (!item[apiFunction]) return dontCallNextMoreThanOnce();
 
-      // TODO: curry in the POST body params when req.api.length === 0
-      var args = [];
-      args.push(onNextPart);
-      req.currentItem[apiFunction].apply(req.currentItem, args);
+      item[apiFunction].apply(item, args.concat([callback]));
     }
 
     // Gets called as the callback of every 'get___' API function call
