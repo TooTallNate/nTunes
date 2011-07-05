@@ -45,104 +45,69 @@ module.exports = function setup (options) {
 
     // The 'api' is the broken down request URL
     req.api = req.parsedUrl.pathname.split('/').slice(1);
-    console.log(req.api);
     req.apiIndex = 0;
 
     // The 'Application' base class is the "starting point" for the API.
     req.currentItem = conn;
 
     // Kick things off...
-    resolve();
+    resolveNextItem();
 
-    // The 'resolve' function is async-recursively called to chew down the
-    // 'req.api' Array. It first gets the next part of the API request, and
-    // verifies that the api part exists as a function of 'req.currentItem'
-    function resolve () {
-      // First check out the type of 'currentItem'. There's a chance that it's
-      // an Array, in which case we should grab the next part of the API
-      // request and attempt to use it as well
-      if (Array.isArray(req.currentItem)) {
-        // TODO: Move the Array by Index specifying moved when it can be
-        // specifie in the node-iTunes API call.
-        var item = req.api[req.apiIndex++];
-        if (isNumber(item)) {
-          item = Number(item);
-          if (item < 0 || item >= req.currentItem.length) return next();
-          req.currentItem = req.currentItem[item];
-          processSingleItem(req.currentItem, req.api[req.apiIndex++], onNextPart);
-        } else {
-          processArray(item, onNextPart);
+    function resolveNextItem () {
+      // First get the next part of the API request. It will be the name of the
+      // next item to get.
+      var item = req.api[req.apiIndex++]
+        , args = []
+
+      // Fast case for when 'item' is undefined...
+      return respond(req.currentItem);
+
+      // Also peek at the next part of the API request. If it's a number or
+      // a part of a query-string ("artist=Tool&name=Lateralus") then also grab
+      // that as part of the next request (for filtering down an Array)
+      if (req.api.length > req.apiIndex) {
+        var secItem = req.api[req.apiIndex];
+        if (isNumber(secItem)) {
+          args.push(Number(secItem));
+          req.apiIndex++;
+        } else if (~secItem.indexOf('=')) {
+          // TODO: Parse the query-string into an Object.
+          args.push(secItem);
+          req.apiIndex++;
         }
-      } else {
-        processSingleItem(req.currentItem, req.api[req.apiIndex++], onNextPart);
       }
+
+      doRequest(req.currentItem, item, args, onNextItem);
     }
 
-    // When the currentItem is an Array, then the apiFunction should be
-    // called on *all* the entries of the array, and the processing shouldn't
-    // continue until that's done.
-    function processArray (apiFunction, callback) {
-      console.log('processArray:', apiFunction);
-      var counter = req.currentItem.length
-        , result = []
-
-      // Fast case for when the currentItem has 0 entries in the array
-      if (counter === 0) return callback(null, result);
-
-      var args = []
-
-      // Iterate through the item's entries, and call the api function on each
-      req.currentItem.forEach(function (item, i) {
-
-        // Check first that the API function exists on the item. next() if not.
-        if (!item[apiFunction]) return dontCallNextMoreThanOnce();
-
-        item[apiFunction].apply(item, args.concat([function (err, part) {
-          if (err) return dontCallNextMoreThanOnce(err);
-          result[i] = part;
-          --counter || callback(null, result);
-        }]));
-      });
-    }
-
-    // When currentItem is a regular iTunesItem reference, then get the next
-    // part of the api request and process normally.
-    function processSingleItem (item, apiFunction, callback) {
-      console.log('processSingleItem:', item, apiFunction);
-      // TODO: curry in the POST body params when req.api.length === 0
-      var args = []
-
-      // If the API request part contains a comma , then it should be split on
-      // that and each item be processed individually
-      if (~apiFunction.indexOf(',')) {
-        var result = []
-          , apiProps = apiFunction.split(',')
-          , counter = apiProps.length
-        apiProps.forEach(function (prop, i) {
-          doRequest(item, prop, args, function (err, part) {
+    function doRequest (item, apiFunction, args, callback) {
+      // 'item' may be an Array, or a regular iTunesItem instance
+      if (Array.isArray(item)) {
+        var counter = item.length
+          , results = []
+        item.forEach(function (item, i) {
+          doRequestSingleItem(item, apiFunction, args, function (err, part) {
             if (err) return dontCallNextMoreThanOnce(err);
-            result[i] = part;
-            --counter || callback(null, result);
+            if (!part) return dontCallNextMoreThanOnce();
+            results[i] = part;
+            --counter || callback(null, results);
           });
         });
       } else {
-        // Othewise, it's a single api request (i.e. name)
-        doRequest(item, apiFunction, args, callback);
+        doRequestSingleItem(item, apiFunction, args, callback);
       }
     }
 
-    function doRequest(item, apiFunction, args, callback) {
+    function doRequestSingleItem (item, apiFunction, args, callback) {
       // Check first that the API function exists on the item. next() if not.
       if (!item[apiFunction]) return dontCallNextMoreThanOnce();
 
       item[apiFunction].apply(item, args.concat([callback]));
     }
 
-    // Gets called as the callback of every 'get___' API function call
-    function onNextPart (err, part) {
-      //console.log('got Callback!');
-      if (err) return next(err);
-      if (!part) return next();
+    function onNextItem (err, part) {
+      if (err) return dontCallNextMoreThanOnce(err);
+      if (!part) return dontCallNextMoreThanOnce();
       // If this is the last part of the API request, then send the response
       // back to the client.
       if (req.api.length === req.apiIndex) {
@@ -151,7 +116,7 @@ module.exports = function setup (options) {
       // Otherwise, set this returned item as the 'currentItem' of the request,
       // and continue attempting to resolve the API request.
         req.currentItem = part;
-        resolve();
+        resolveNextItem();
       }
     }
 
@@ -159,6 +124,7 @@ module.exports = function setup (options) {
       // TODO: Implement a JSON response when "Accept: application/json" is
       // present
       // Plain-Text mode (for curl, etc.)
+      res.header('Content-Type', 'text/plain');
       res.send(String(body) + '\n');
     }
 
