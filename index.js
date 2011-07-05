@@ -64,6 +64,16 @@ module.exports = function setup (options) {
         return respond(req.currentItem);
       }
 
+      // Handle the case of the 'length' property on Arrays
+      if (/^(length|count)$/.test(apiFunction)) {
+        if (Array.isArray(req.currentItem)) {
+          return respond(req.currentItem.length);
+        } else {
+          // If length was reqested on a non-Array, then next()
+          return next();
+        }
+      }
+
       // If 'apiFunction' contains a comma (,) then the String should be split
       // on that and each value should be the name of a property to get
       if (~apiFunction.indexOf(',')) {
