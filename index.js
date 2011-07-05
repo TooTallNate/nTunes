@@ -56,12 +56,18 @@ module.exports = function setup (options) {
     function resolveNextItem () {
       // First get the next part of the API request. It will be the name of the
       // next item to get.
-      var item = req.api[req.apiIndex++]
+      var apiFunction = req.api[req.apiIndex++]
         , args = []
 
-      // Fast case for when 'item' is undefined...
-      if (!item) {
+      // Fast case for when 'apiFunction' is undefined or an empty String...
+      if (!apiFunction) {
         return respond(req.currentItem);
+      }
+
+      // If 'apiFunction' contains a comma (,) then the String should be split
+      // on that and each value should be the name of a property to get
+      if (~apiFunction.indexOf(',')) {
+        apiFunction = apiFunction.split(',');
       }
 
       // Also peek at the next part of the API request. If it's a number or
@@ -79,7 +85,19 @@ module.exports = function setup (options) {
         }
       }
 
-      doRequest(req.currentItem, item, args, onNextItem);
+      if (Array.isArray(apiFunction)) {
+        var counter = apiFunction.length
+          , results = []
+        apiFunction.forEach(function (funcName, i) {
+          doRequest(req.currentItem, funcName, args, function (err, part) {
+            if (err) return dontCallNextMoreThanOnce(err);
+            results[i] = part;
+            --counter || onNextItem(null, results);
+          });
+        });
+      } else {
+        doRequest(req.currentItem, apiFunction, args, onNextItem);
+      }
     }
 
     function doRequest (item, apiFunction, args, callback) {
