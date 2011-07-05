@@ -8,13 +8,13 @@ var fs      = require('fs')
 
 
 app.configure(function () {
-  app.set('views', __dirname + '/../views');
+  app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
 
   app.use(express.logger());
   // Utilizing the 'mount' feature of connect to have the nTunes API at '/api'
   app.use('/api', nTunes());
-  app.use(express.static(path.resolve(__dirname + '/../public')));
+  app.use(express.static(path.resolve(__dirname + '/public')));
   app.use(renderJade);
   app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
 
