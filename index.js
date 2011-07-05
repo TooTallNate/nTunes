@@ -45,6 +45,7 @@ module.exports = function setup (options) {
 
     // The 'api' is the broken down request URL
     req.api = req.parsedUrl.pathname.split('/').slice(1);
+    console.log(req.api);
     req.apiIndex = 0;
 
     // The 'Application' base class is the "starting point" for the API.
@@ -68,24 +69,25 @@ module.exports = function setup (options) {
           item = Number(item);
           if (item < 0 || item >= req.currentItem.length) return next();
           req.currentItem = req.currentItem[item];
-          processSingleItem();
+          processSingleItem(req.currentItem, req.api[req.apiIndex++], onNextPart);
         } else {
-          processArray(item);
+          processArray(item, onNextPart);
         }
       } else {
-        processSingleItem();
+        processSingleItem(req.currentItem, req.api[req.apiIndex++], onNextPart);
       }
     }
 
     // When the currentItem is an Array, then the apiFunction should be
     // called on *all* the entries of the array, and the processing shouldn't
     // continue until that's done.
-    function processArray (apiFunction) {
+    function processArray (apiFunction, callback) {
+      console.log('processArray:', apiFunction);
       var counter = req.currentItem.length
         , result = []
 
       // Fast case for when the currentItem has 0 entries in the array
-      if (counter === 0) return onNextPart(null, result);
+      if (counter === 0) return callback(null, result);
 
       var args = []
 
@@ -98,33 +100,34 @@ module.exports = function setup (options) {
         item[apiFunction].apply(item, args.concat([function (err, part) {
           if (err) return dontCallNextMoreThanOnce(err);
           result[i] = part;
-          --counter || onNextPart(null, result);
+          --counter || callback(null, result);
         }]));
       });
     }
 
     // When currentItem is a regular iTunesItem reference, then get the next
     // part of the api request and process normally.
-    function processSingleItem () {
-      var apiFunction = req.api[req.apiIndex++]
-        // TODO: curry in the POST body params when req.api.length === 0
-        , args = []
+    function processSingleItem (item, apiFunction, callback) {
+      console.log('processSingleItem:', item, apiFunction);
+      // TODO: curry in the POST body params when req.api.length === 0
+      var args = []
 
       // If the API request part contains a comma , then it should be split on
       // that and each item be processed individually
       if (~apiFunction.indexOf(',')) {
         var result = []
-          , apiItems = apiFunction.split(',')
-          , counter = apiItems.length
-        apiItems.forEach(function(item, i) {
-          doRequest(req.currentItem, item, args, function (err, part) {
+          , apiProps = apiFunction.split(',')
+          , counter = apiProps.length
+        apiProps.forEach(function (prop, i) {
+          doRequest(item, prop, args, function (err, part) {
             if (err) return dontCallNextMoreThanOnce(err);
             result[i] = part;
-            --counter || onNextPart(null, result);
+            --counter || callback(null, result);
           });
         });
       } else {
-        doRequest(req.currentItem, apiFunction, args, onNextPart);
+        // Othewise, it's a single api request (i.e. name)
+        doRequest(item, apiFunction, args, callback);
       }
     }
 
