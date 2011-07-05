@@ -121,7 +121,10 @@ module.exports = function setup (options) {
     }
 
     function respond (body) {
-      res.send(body);
+      // TODO: Implement a JSON response when "Accept: application/json" is
+      // present
+      // Plain-Text mode (for curl, etc.)
+      res.send(String(body) + '\n');
     }
 
   });
