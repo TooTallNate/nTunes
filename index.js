@@ -56,6 +56,8 @@ module.exports = function setup (options) {
         // specifie in the node-iTunes API call.
         var item = req.api[req.apiIndex++];
         if (isNumber(item)) {
+          item = Number(item);
+          if (item < 0 || item >= req.currentItem.length) return next();
           req.currentItem = req.currentItem[item];
           processSingleItem();
         } else {
