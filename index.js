@@ -52,6 +52,8 @@ module.exports = function setup (options) {
       // an Array, in which case we should grab the next part of the API
       // request and attempt to use it as well
       if (Array.isArray(req.currentItem)) {
+        // TODO: Move the Array by Index specifying moved when it can be
+        // specifie in the node-iTunes API call.
         var item = req.api[req.apiIndex++];
         if (isNumber(item)) {
           req.currentItem = req.currentItem[item];
