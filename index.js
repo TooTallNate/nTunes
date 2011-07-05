@@ -75,14 +75,21 @@ module.exports = function setup (options) {
       if (counter === 0) return onNextPart(null, result);
 
       var args = []
+        , nextCalled = false
+
+      function dontCallNextMoreThanOnce(err) {
+        if (nextCalled) return;
+        nextCalled = true;
+        next(err);
+      }
 
       // Iterate through the item's entries, and call the api function on each
       req.currentItem.forEach(function (item, i) {
         // Check first that the API function exists on the item. next() if not.
-        if (!item[apiFunction]) return next();
+        if (!item[apiFunction]) return dontCallNextMoreThanOnce();
 
         item[apiFunction].apply(item, args.concat([function (err, part) {
-          if (err) return next(err);
+          if (err) return dontCallNextMoreThanOnce(err);
           result[i] = part;
           --counter || onNextPart(null, result);
         }]));
