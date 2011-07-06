@@ -101,6 +101,7 @@ module.exports = function setup (options) {
         apiFunction.forEach(function (funcName, i) {
           doRequest(req.currentItem, funcName, args, function (err, part) {
             if (err) return dontCallNextMoreThanOnce(err);
+            if (isInvalid(part)) return dontCallNextMoreThanOnce();
             results[i] = part;
             --counter || onNextItem(null, results);
           });
@@ -118,7 +119,7 @@ module.exports = function setup (options) {
         item.forEach(function (item, i) {
           doRequestSingleItem(item, apiFunction, args, function (err, part) {
             if (err) return dontCallNextMoreThanOnce(err);
-            if (!part) return dontCallNextMoreThanOnce();
+            if (isInvalid(part)) return dontCallNextMoreThanOnce();
             results[i] = part;
             --counter || callback(null, results);
           });
@@ -137,7 +138,7 @@ module.exports = function setup (options) {
 
     function onNextItem (err, part) {
       if (err) return dontCallNextMoreThanOnce(err);
-      if (!part) return dontCallNextMoreThanOnce();
+      if (isInvalid(part)) return dontCallNextMoreThanOnce();
       // If this is the last part of the API request, then send the response
       // back to the client.
       if (req.api.length === req.apiIndex) {
@@ -167,4 +168,10 @@ module.exports = function setup (options) {
 // Returns true if a given String is a Number
 function isNumber (n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
+
+// Returns true if v is null or undefined, false otherwise
+function isInvalid (v) {
+  return typeof(v) == 'undefined' || v === null;
 }
