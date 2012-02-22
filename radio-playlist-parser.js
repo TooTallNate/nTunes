@@ -1,9 +1,9 @@
 const net = require("net");
 const path = require("path");
 const parse = require("url").parse;
-const uniq = require("helpers").arrayUniq;
-const parseM3u = require("m3u-parser").parseM3u;
-const parsePls = require("pls-parser").parsePls;
+const uniq = require("./helpers").arrayUniq;
+const parseM3u = require("./m3u-parser").parseM3u;
+const parsePls = require("./pls-parser").parsePls;
 
 const R = '\r'.charCodeAt(0);
 const N = '\n'.charCodeAt(0);

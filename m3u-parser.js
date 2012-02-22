@@ -1,4 +1,4 @@
-var getUrl = require("get-http-url").getUrl;
+var getUrl = require("./get-http-url").getUrl;
 
 // Unofficial M3U and PLS Specifications
 // http://forums.winamp.com/showthread.php?threadid=65772

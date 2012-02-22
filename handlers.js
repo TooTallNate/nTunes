@@ -3,9 +3,9 @@ var sys = require("sys");
 var http = require("http");
 var Step = require("step");
 var im = require("imagemagick");
-var helpers = require("helpers");
-var nSpecifier = require("nTunes-specifier");
-var playlistParser = require("radio-playlist-parser");
+var helpers = require("./helpers");
+var nSpecifier = require("./nTunes-specifier");
+var playlistParser = require("./radio-playlist-parser");
 
 /* Here are the custom "handlers" that come packaged with nTunes. These
  * are the most common functionality missing from the standard iTunes API.
