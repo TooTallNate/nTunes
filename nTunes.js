@@ -1,14 +1,12 @@
-require.paths.unshift(__dirname);
 var xml2js = require("xml2js");
 var parse = require("url").parse;
-var helpers = require("helpers");
-var handlers = require("handlers");
-var nClass = require("nTunes-class");
-var nCommand = require("nTunes-command");
+var helpers = require("./helpers");
+var handlers = require("./handlers");
+var nClass = require("./nTunes-class");
+var nCommand = require("./nTunes-command");
 var querystring = require("querystring");
 var applescript = require("applescript");
-var nSpecifier = require("nTunes-specifier");
-require.paths.shift();
+var nSpecifier = require("./nTunes-specifier");
 
 
 // Before doing anything, the "iTunes.sdef" file must be read and
